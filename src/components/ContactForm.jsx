@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   StyledForm,
@@ -7,54 +7,54 @@ import {
   StyledBtn,
 } from '../styles/App.Styled';
 
-class ContactForm extends Component {
-  state = {
-    name: '',
-    number: '',
-  };
-  handleChangeInput = e => {
-    this.setState({ [e.target.name]: e.target.value });
+const ContactForm = ({ addContact }) => {
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+
+  const handleChangeInput = e => {
+    if (e.target.name === 'name') {
+      setName(e.target.value);
+    } else if (e.target.name === 'number') {
+      setNumber(e.target.value);
+    }
   };
 
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault();
-    this.props.addContact(this.state);
-    this.setState({
-      name: '',
-      number: '',
-    });
+    addContact({ name, number });
+    setName('');
+    setNumber('');
   };
-  render() {
-    const { name, number } = this.state;
-    return (
-      <StyledForm onSubmit={this.handleSubmit}>
-        <StyledTitle>Phonebook</StyledTitle>
-        <StyledDesc>Name</StyledDesc>
-        <input
-          type="text"
-          name="name"
-          title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-          required
-          value={name}
-          onChange={this.handleChangeInput}
-          placeholder="Name"
-        />
-        <StyledDesc>Phone number</StyledDesc>
-        <input
-          type="tel"
-          name="number"
-          pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
-          required
-          value={number}
-          onChange={this.handleChangeInput}
-          placeholder="XXX-XXX-XXXX"
-        />
 
-        <StyledBtn type="submit">Add Contact</StyledBtn>
-      </StyledForm>
-    );
-  }
-}
+  return (
+    <StyledForm onSubmit={handleSubmit}>
+      <StyledTitle>Phonebook</StyledTitle>
+      <StyledDesc>Name</StyledDesc>
+      <input
+        type="text"
+        name="name"
+        title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+        required
+        value={name}
+        onChange={handleChangeInput}
+        placeholder="Name"
+      />
+      <StyledDesc>Phone number</StyledDesc>
+      <input
+        type="tel"
+        name="number"
+        pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+        required
+        value={number}
+        onChange={handleChangeInput}
+        placeholder="XXX-XXX-XXXX"
+      />
+
+      <StyledBtn type="submit">Add Contact</StyledBtn>
+    </StyledForm>
+  );
+};
+
 export default ContactForm;
 
 ContactForm.propTypes = {

@@ -1,85 +1,71 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import contactsData from '../assets/contacts.json';
 import ContactForm from './ContactForm';
 import Filter from './Filter';
 import { ContactList } from './ContactList';
 import { nanoid } from 'nanoid';
 
-class App extends Component {
-  state = {
-    contacts: contactsData,
-    filter: '',
-  };
-  //++++++++++++++++++
-  componentDidMount() {
-    console.log('MOUNT');
+const App = () => {
+  const [contacts, setContacts] = useState(contactsData);
+  const [filter, setFilter] = useState('');
+
+  useEffect(() => {
     const items = JSON.parse(window.localStorage.getItem('CONTACTS'));
     if (items?.length) {
-      this.setState({ contacts: items });
+      setContacts(items);
     }
-    console.log(items);
-  }
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.contacts !== this.state.contacts) {
-      window.localStorage.setItem(
-        'CONTACTS',
-        JSON.stringify(this.state.contacts)
-      );
-    }
-  }
-  //+++++++++++++++++++++
-  handleAddContact = ({ name, number }) => {
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem('CONTACTS', JSON.stringify(contacts));
+  }, [contacts]);
+
+  const handleAddContact = ({ name, number }) => {
     const contact = {
       name,
       id: nanoid(),
       number,
     };
 
-    const item = this.state.contacts.find(
+    const item = contacts.find(
       item => item.name.toLowerCase() === name.toLowerCase()
     );
     if (item) {
       alert(`${name} is already in contacts`);
     } else {
-      this.setState(prev => ({
-        contacts: [...prev.contacts, contact],
-      }));
+      setContacts(prev => [...prev, contact]);
     }
   };
 
-  handleChangeFilter = e => {
-    this.setState({ filter: e.target.value });
+  const handleChangeFilter = e => {
+    setFilter(e.target.value);
   };
 
-  filteredContactsArr = (data, filter) => {
+  const filteredContactsArr = (data, filter) => {
     return data.filter(contact =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
     );
   };
 
-  handleDeleteContact = id => {
-    this.setState(prev => ({
-      contacts: prev.contacts.filter(contact => contact.id !== id),
-    }));
+  const handleDeleteContact = id => {
+    setContacts(prev => prev.filter(contact => contact.id !== id));
   };
 
-  render() {
-    const { contacts, filter } = this.state;
-    const filteredContacts = this.filteredContactsArr(contacts, filter);
-    return (
-      <div>
-        <ContactForm addContact={this.handleAddContact} contacts={contacts} />
-        <Filter
-          takeData={this.handleChangeFilter}
-          filteredContacts={this.filteredContactsArr}
-        />
-        <ContactList
-          contacts={filteredContacts}
-          deleteContact={this.handleDeleteContact}
-        />
-      </div>
-    );
-  }
-}
+  const filteredContacts = filteredContactsArr(contacts, filter);
+
+  return (
+    <div>
+      <ContactForm addContact={handleAddContact} contacts={contacts} />
+      <Filter
+        takeData={handleChangeFilter}
+        filteredContacts={filteredContactsArr}
+      />
+      <ContactList
+        contacts={filteredContacts}
+        deleteContact={handleDeleteContact}
+      />
+    </div>
+  );
+};
 
 export default App;
